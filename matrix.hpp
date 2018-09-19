@@ -3,6 +3,8 @@
 #include<array>
 #include<vector>
 #include<cassert>
+#include<algorithm>
+#include<iterator>
 
 using namespace std; 
 
@@ -10,7 +12,7 @@ using namespace std;
 template<class T>
 class Matrix{
 public:
-    vector<unsigned int> shape;
+    vector<unsigned> shape;
     vector<T> data;
 
     Matrix()
@@ -50,6 +52,38 @@ public:
         vector<T> data(n_elt);
     }
 
+    typename vector<T>::iterator index(unsigned i, unsigned j)
+    {
+        auto ptr = data.begin() + (i * shape[1] + j);
+        return ptr;
+    }
+};
+
+
+template<class T> 
+class View
+{
+private:
+    vector<unsigned> shape;
+    vector<unsigned> start_pt;
+    Matrix<T>* target;
+public:
+
+    View(const Matrix<T> &mat, const vector<unsigned> &shape):
+    shape(shape), target(&mat)
+    {
+        vector<T> start_pt {0, 0};
+    }
+
+    View(Matrix<T> &mat, const vector<unsigned> &start, const vector<unsigned> &shape):
+    target(&mat), start_pt(start), shape(shape)
+    {}
+
+    typename vector<T>::iterator index(unsigned i, unsigned j)
+    {
+        auto ptr = target->index(start_pt[0] + i, start_pt[1] + j);
+        return ptr;
+    }
 };
 
 
@@ -74,7 +108,7 @@ void print(const Matrix<T> &mat)
 }
 
 template<class T>
-Matrix<T> mul_classic(Matrix<T> &m1, Matrix<T> &m2)
+Matrix<T> mul_classic(const Matrix<T> &m1, const Matrix<T> &m2)
 {
     // compute shape of result matrix and initialize data as empty vector
     vector<unsigned> shape = m1.shape;
@@ -89,6 +123,7 @@ Matrix<T> mul_classic(Matrix<T> &m1, Matrix<T> &m2)
     }
     vector<T> data(n_elt, 0.0);
 
+    // compute multiplication result iterating through elts
     unsigned col_idx = 0;
     unsigned row_idx = 0;
     unsigned num_col = shape.back();
@@ -109,6 +144,35 @@ Matrix<T> mul_classic(Matrix<T> &m1, Matrix<T> &m2)
         }
     }
     Matrix<T> result(data, shape);
-    cout << "hello" << endl;
     return result;
+}
+
+template<class T>
+Matrix<T>& mul_strassen(Matrix<T> &m1, Matrix<T> &m2)
+{
+    // compute shape of result matrix and initialize data as empty vector
+    vector<unsigned> shape = m1.shape;
+    auto len_iter = shape.back();
+    shape.pop_back();
+    shape.insert(shape.end(), m2.shape.begin() + 1, m2.shape.end());
+ 
+    unsigned n_elt = 1;
+    for(auto &dim:shape)
+    {
+        n_elt *= dim;
+    }
+    vector<T> data(n_elt, 0.0);
+}
+
+template<class iterator>
+void core_strassen(iterator target, iterator m1, iterator m2, unsigned n)
+{
+    cout << *m1 << endl;
+    if (n <= 2)
+    {
+        // TODO: classical mult.
+    }
+    // TODO: recursive call
+
+    // return *m1;
 }

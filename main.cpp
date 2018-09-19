@@ -5,7 +5,7 @@
 
 
 int main(){
-    test_multiplication(); 
+    test_strassen(); 
         
     return 0;
 }
