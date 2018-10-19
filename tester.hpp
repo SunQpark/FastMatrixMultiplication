@@ -2,6 +2,9 @@
 #include<vector>
 #include<chrono>
 #include"matrix.hpp"
+#include"mm_classic.hpp"
+#include"mm_strassen.hpp"
+
 
 using namespace std;
 using scalar = double;
@@ -19,7 +22,7 @@ void test_addition()
     print(mat1);
 }
 
-void test_multiplication()
+void test_classical()
 {
     vector<scalar> data1 {
         1.0, 0.0, 3.0, 
@@ -58,28 +61,13 @@ void test_strassen()
     Matrix<scalar> mat1 (data1, shape);
     Matrix<scalar> mat2 (data2, shape);
 
-    const int_pair st {0, 0};
-    const int_pair sh {2, 2};
-
-    // v1.assign(v2);
-    cout << endl;
-    // for(size_t i = 0; i < shape.first; i++)
-    // {
-    //     for(size_t j = 0; j < shape.second; j++)
-    //     {
-    //         cout << *v1.index(i, j) << " " << *v2.index(i, j) << endl;
-    //     }
-    // }
-    
     print(mat1);
-    // print(v1.get_target());
-    print(mat2);
-    // print(v2.get_target());
     cout << endl;
+
+    // print(mat2);
+    // cout << endl;
     print(mm_classic(mat1, mat2));
+    print(mm_strassen(mat1, mat2));
 
     cout <<endl;
-    // cout << *(pt.start_point);
-    
-    // core_strassen(data1.begin(), data1.begin(), data2.begin(), 4);
 }

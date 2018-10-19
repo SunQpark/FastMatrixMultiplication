@@ -16,13 +16,49 @@ public:
     vector<RING> data;
     int_pair shape;
 
-    Matrix(){}
+    Matrix(const unsigned &size)
+    {// construct empty square matrix having shape (size, size)
+        shape = int_pair(size, size);
+        data = vector<RING>(size * size, RING(0));
+    }
+
+    Matrix(const int_pair &shape):
+    shape(shape)
+    {// construct empty matrix having given shape
+        data = vector<RING>(shape.first*shape.second, RING(0));
+    }
  
     Matrix(const vector<RING> &value, const int_pair &shape): 
     data(value), shape(shape)
     {}
 
-    Matrix<RING>& operator += (Matrix<RING> &other)
+    const typename vector<RING>::iterator index(unsigned i, unsigned j)
+    {
+        // ensure indices are in the right range
+        assert(i < shape.first && j < shape.second); 
+        auto ptr = data.begin() + (i * shape.first + j);
+        return ptr;
+    }
+
+    Matrix<RING> slice(int_pair start, int_pair window) const
+    {// copy and return part of matrix specified by start index and return size(window)
+        assert(start.first + window.first <= shape.first);
+        assert(start.second + window.second <= shape.second);
+
+        vector<RING> output_data(window.first * window.second);
+        Matrix<RING> result(output_data, window);
+
+        for(size_t i = 0; i < window.first; i++)
+        {
+            for(size_t j = 0; j < window.second; j++)
+            {
+                *result.index(i, j) += data.begin()[(start.first + i) * shape.first + (start.second + j)];
+            }
+        }
+        return result;
+    }
+
+    Matrix<RING>& operator+= (const Matrix<RING> &other)
     {
         // ensure that both matrices have same shape
         assert(shape.first == other.shape.first);
@@ -37,17 +73,38 @@ public:
         return *this;
     }
 
-    typename vector<RING>::iterator index(unsigned i, unsigned j)
+    Matrix<RING>& operator-= (const Matrix<RING> &other)
     {
-        auto ptr = data.begin() + (i * shape.first + j);
-        return ptr;
-    }
+        // ensure that both matrices have same shape
+        assert(shape.first == other.shape.first);
+        assert(shape.second == other.shape.second);
 
-    unsigned n_elt()
-    {
-        return shape.first * shape.second;
+        auto iter = other.data.begin();
+        for(auto &e: data)
+        {
+            e -= *iter;
+            iter++;
+        }
+        return *this;
     }
 };
+
+template<class RING>
+Matrix<RING> operator+(const Matrix<RING> &m1, const Matrix<RING> &m2)
+{
+    Matrix<RING> result = m1;
+    result += m2;
+    return result;
+}
+
+template<class RING>
+Matrix<RING> operator-(const Matrix<RING> &m1, const Matrix<RING> &m2)
+{
+    Matrix<RING> result = m1;
+    result -= m2;
+    return result;
+}
+
 
 template<class RING>
 void print(const Matrix<RING> &mat)
@@ -57,6 +114,7 @@ void print(const Matrix<RING> &mat)
     auto n_cols = mat.shape.second;
     auto n_rows = mat.shape.first;
 
+    cout << endl;
     for(size_t i = 0; i < n_rows; i++)
     {
         for(size_t j = 0; j < n_cols; j++)

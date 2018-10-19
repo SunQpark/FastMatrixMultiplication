@@ -6,7 +6,6 @@
 
 int main(){
     test_strassen(); 
-        
     return 0;
 }
 
