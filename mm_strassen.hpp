@@ -17,7 +17,7 @@ void add_partial(Matrix<RING> &target, Matrix<RING> &input, int_pair start)
         input_iter = input.index(i, 0);
         for(size_t j = 0; j < input.shape.second; j++)
         {
-            *target_iter++ = *input_iter++;
+            *target_iter++ += *input_iter++;
         }
     }
 }
@@ -44,9 +44,9 @@ void subt_partial(Matrix<RING> &target, Matrix<RING> &input, int_pair start)
 template<class RING>
 Matrix<RING> mm_strassen(const Matrix<RING> &m1, const Matrix<RING> &m2)
 {
-    unsigned threshold = 16;
+    unsigned threshold = 2;
     unsigned size = m1.shape.first;
-    if (size < threshold)
+    if (size <= threshold)
     {
         // use classical MM
         return mm_classic(m1, m2);
