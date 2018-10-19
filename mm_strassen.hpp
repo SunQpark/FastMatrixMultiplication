@@ -36,8 +36,8 @@ void subt_partial(Matrix<RING> &target, Matrix<RING> &input, int_pair start)
 template<class RING>
 Matrix<RING> mm_strassen(const Matrix<RING> &m1, const Matrix<RING> &m2)
 {
+    unsigned threshold = 16;
     unsigned size = m1.shape.first;
-    unsigned threshold = 2;
     if (size < threshold)
     {
         // use classical MM
