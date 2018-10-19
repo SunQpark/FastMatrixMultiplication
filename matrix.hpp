@@ -7,30 +7,27 @@
 #include<iterator>
 
 using namespace std; 
+using int_pair = pair<unsigned, unsigned>;
 
 
-template<class T>
+template<class RING>
 class Matrix{
 public:
-    vector<unsigned> shape;
-    vector<T> data;
+    vector<RING> data;
+    int_pair shape;
 
-    Matrix()
-    {
-
-    }
-
-    Matrix(const vector<T> &value): data(value)
-    {
-        shape.push_back(data.size());
-    }
-
-    Matrix(const vector<T> &value, const vector<unsigned> &shape): 
+    Matrix(){}
+ 
+    Matrix(const vector<RING> &value, const int_pair &shape): 
     data(value), shape(shape)
     {}
 
-    Matrix<T>& operator += (Matrix<T> &other)
+    Matrix<RING>& operator += (Matrix<RING> &other)
     {
+        // ensure that both matrices have same shape
+        assert(shape.first == other.shape.first);
+        assert(shape.second == other.shape.second);
+
         auto iter = other.data.begin();
         for(auto &e: data)
         {
@@ -40,64 +37,29 @@ public:
         return *this;
     }
 
-    void reshape(vector<unsigned> sh)
+    typename vector<RING>::iterator index(unsigned i, unsigned j)
     {
-        shape = sh;
-
-        unsigned n_elt = 1;
-        for(auto & dim:sh)
-        {
-            n_elt *= dim;
-        }
-        vector<T> data(n_elt);
+        auto ptr = data.begin() + (i * shape.first + j);
+        return ptr;
     }
 
-    typename vector<T>::iterator index(unsigned i, unsigned j)
+    unsigned n_elt()
     {
-        auto ptr = data.begin() + (i * shape[1] + j);
-        return ptr;
+        return shape.first * shape.second;
     }
 };
 
-
-template<class T> 
-class View
-{
-private:
-    vector<unsigned> shape;
-    vector<unsigned> start_pt;
-    Matrix<T>* target;
-public:
-
-    View(const Matrix<T> &mat, const vector<unsigned> &shape):
-    shape(shape), target(&mat)
-    {
-        vector<T> start_pt {0, 0};
-    }
-
-    View(Matrix<T> &mat, const vector<unsigned> &start, const vector<unsigned> &shape):
-    target(&mat), start_pt(start), shape(shape)
-    {}
-
-    typename vector<T>::iterator index(unsigned i, unsigned j)
-    {
-        auto ptr = target->index(start_pt[0] + i, start_pt[1] + j);
-        return ptr;
-    }
-};
-
-
-template<class T>
-void print(const Matrix<T> &mat)
-{// helper func for printing matrix. only support 2d matrices for now
+template<class RING>
+void print(const Matrix<RING> &mat)
+{// helper func for printing matrix.
     auto iter = mat.data.begin();
     
-    auto col_iter = mat.shape.rbegin();
-    auto row_iter = mat.shape.rbegin() + 1;
+    auto n_cols = mat.shape.second;
+    auto n_rows = mat.shape.first;
 
-    for(size_t i = 0; i < *row_iter; i++)
+    for(size_t i = 0; i < n_rows; i++)
     {
-        for(size_t j = 0; j < *col_iter; j++)
+        for(size_t j = 0; j < n_cols; j++)
             {
             cout << *iter << "\t";    
             iter++;
@@ -105,74 +67,4 @@ void print(const Matrix<T> &mat)
         cout << endl;
     }
   
-}
-
-template<class T>
-Matrix<T> mul_classic(const Matrix<T> &m1, const Matrix<T> &m2)
-{
-    // compute shape of result matrix and initialize data as empty vector
-    vector<unsigned> shape = m1.shape;
-    auto len_iter = shape.back();
-    shape.pop_back();
-    shape.insert(shape.end(), m2.shape.begin() + 1, m2.shape.end());
- 
-    unsigned n_elt = 1;
-    for(auto &dim:shape)
-    {
-        n_elt *= dim;
-    }
-    vector<T> data(n_elt, 0.0);
-
-    // compute multiplication result iterating through elts
-    unsigned col_idx = 0;
-    unsigned row_idx = 0;
-    unsigned num_col = shape.back();
-    
-    for(auto &elt : data)
-    {
-        
-        for(size_t i = 0; i < len_iter; i++)
-        {
-            elt += m1.data[row_idx * len_iter + i] * m2.data[num_col * i + col_idx];
-        }
-        
-        col_idx++;
-        if (col_idx == num_col)
-        {
-            row_idx++;
-            col_idx = 0;
-        }
-    }
-    Matrix<T> result(data, shape);
-    return result;
-}
-
-template<class T>
-Matrix<T>& mul_strassen(Matrix<T> &m1, Matrix<T> &m2)
-{
-    // compute shape of result matrix and initialize data as empty vector
-    vector<unsigned> shape = m1.shape;
-    auto len_iter = shape.back();
-    shape.pop_back();
-    shape.insert(shape.end(), m2.shape.begin() + 1, m2.shape.end());
- 
-    unsigned n_elt = 1;
-    for(auto &dim:shape)
-    {
-        n_elt *= dim;
-    }
-    vector<T> data(n_elt, 0.0);
-}
-
-template<class iterator>
-void core_strassen(iterator target, iterator m1, iterator m2, unsigned n)
-{
-    cout << *m1 << endl;
-    if (n <= 2)
-    {
-        // TODO: classical mult.
-    }
-    // TODO: recursive call
-
-    // return *m1;
 }
