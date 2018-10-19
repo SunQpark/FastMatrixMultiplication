@@ -35,15 +35,15 @@ public:
     const typename vector<RING>::iterator index(unsigned i, unsigned j)
     {
         // ensure indices are in the right range
-        assert(i < shape.first && j < shape.second); 
+        // assert(i < shape.first && j < shape.second); 
         auto ptr = data.begin() + (i * shape.first + j);
         return ptr;
     }
 
     Matrix<RING> slice(int_pair start, int_pair window) const
     {// copy and return part of matrix specified by start index and return size(window)
-        assert(start.first + window.first <= shape.first);
-        assert(start.second + window.second <= shape.second);
+        // assert(start.first + window.first <= shape.first);
+        // assert(start.second + window.second <= shape.second);
 
         vector<RING> output_data(window.first * window.second);
         Matrix<RING> result(output_data, window);
@@ -61,8 +61,8 @@ public:
     Matrix<RING>& operator+= (const Matrix<RING> &other)
     {
         // ensure that both matrices have same shape
-        assert(shape.first == other.shape.first);
-        assert(shape.second == other.shape.second);
+        // assert(shape.first == other.shape.first);
+        // assert(shape.second == other.shape.second);
 
         auto iter = other.data.begin();
         for(auto &e: data)
@@ -76,8 +76,8 @@ public:
     Matrix<RING>& operator-= (const Matrix<RING> &other)
     {
         // ensure that both matrices have same shape
-        assert(shape.first == other.shape.first);
-        assert(shape.second == other.shape.second);
+        // assert(shape.first == other.shape.first);
+        // assert(shape.second == other.shape.second);
 
         auto iter = other.data.begin();
         for(auto &e: data)
@@ -86,6 +86,18 @@ public:
             iter++;
         }
         return *this;
+    }
+
+    bool operator==(const Matrix<RING> &other)
+    {
+        if (shape.first != other.shape.first) {return false;}
+        if (shape.second != other.shape.second) {return false;}
+        
+        for(size_t i = 0; i < shape.first * shape.second; i++)
+        {
+            if (data[i] != other.data[i]){return false;}
+        }
+        return true;
     }
 };
 
