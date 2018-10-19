@@ -48,11 +48,14 @@ public:
         vector<RING> output_data(window.first * window.second);
         Matrix<RING> result(output_data, window);
 
+        auto input_iter = data.begin();
+        auto output_iter = result.index(0, 0);
         for(size_t i = 0; i < window.first; i++)
         {
+            input_iter = data.begin() + ((start.first + i) * shape.first + (start.second));
             for(size_t j = 0; j < window.second; j++)
             {
-                *result.index(i, j) += data.begin()[(start.first + i) * shape.first + (start.second + j)];
+                *output_iter++ += *input_iter++;
             }
         }
         return result;

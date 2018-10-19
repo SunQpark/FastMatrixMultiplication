@@ -9,11 +9,15 @@ void add_partial(Matrix<RING> &target, Matrix<RING> &input, int_pair start)
     assert(start.first + input.shape.first <= target.shape.first);
     assert(start.second + input.shape.second <= target.shape.second);
 
+    auto target_iter = target.index(start.first, start.second);
+    auto input_iter = input.index(0, 0);
     for(size_t i = 0; i < input.shape.first; i++)
     {
+        target_iter = target.index(start.first + i, start.second);
+        input_iter = input.index(i, 0);
         for(size_t j = 0; j < input.shape.second; j++)
         {
-            *target.index(start.first + i, start.second + j) += *input.index(i, j);
+            *target_iter++ = *input_iter++;
         }
     }
 }
@@ -24,11 +28,15 @@ void subt_partial(Matrix<RING> &target, Matrix<RING> &input, int_pair start)
     assert(start.first + input.shape.first <= target.shape.first);
     assert(start.second + input.shape.second <= target.shape.second);
 
+    auto target_iter = target.index(start.first, start.second);
+    auto input_iter = input.index(0, 0);
     for(size_t i = 0; i < input.shape.first; i++)
     {
+        target_iter = target.index(start.first + i, start.second);
+        input_iter = input.index(i, 0);
         for(size_t j = 0; j < input.shape.second; j++)
         {
-            *target.index(start.first + i, start.second + j) -= *input.index(i, j);
+            *target_iter++ -= *input_iter++;
         }
     }
 }
